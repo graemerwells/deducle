@@ -662,8 +662,9 @@
                 startScreenEl.style.display = 'none';
                 mainGameWrapperEl.style.display = 'grid';
                 
-                await initGame();
+                await initGame(); // This loads the correct daily puzzle
                 
+                // Now that the puzzle is loaded, restore the state
                 isGameOver = true;
                 currentGuess = data.guess || '';
                 renderInputGrid();
@@ -789,4 +790,3 @@
     </script>
 </body>
 </html>
-
