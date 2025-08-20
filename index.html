@@ -205,7 +205,7 @@
     </div>
     
     <footer class="w-full text-center text-gray-500 text-sm py-4">
-        Designed by Graeme Wells
+        Designed by Your Name
     </footer>
 
     <script>
@@ -653,14 +653,19 @@
             localStorage.setItem(`deducleProgress-${today}`, JSON.stringify(progress));
         }
 
-        function checkDailyProgress() {
+        async function checkDailyProgress() {
             const today = new Date().toISOString().split('T')[0];
             const progress = localStorage.getItem(`deducleProgress-${today}`);
             if (progress) {
                 const data = JSON.parse(progress);
-                startGame();
+                
+                startScreenEl.style.display = 'none';
+                mainGameWrapperEl.style.display = 'grid';
+                
+                await initGame();
+                
                 isGameOver = true;
-                currentGuess = data.guess;
+                currentGuess = data.guess || '';
                 renderInputGrid();
                 
                 if (data.revealed) {
@@ -668,6 +673,8 @@
                 } else {
                     showEndGameModal("You got it!", "text-green-600", true, data.time);
                 }
+            } else {
+                checkTutorial();
             }
         }
         
@@ -782,3 +789,4 @@
     </script>
 </body>
 </html>
+
