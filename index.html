@@ -662,9 +662,8 @@
                 startScreenEl.style.display = 'none';
                 mainGameWrapperEl.style.display = 'grid';
                 
-                await initGame(); // This loads the correct daily puzzle
+                await initGame();
                 
-                // Now that the puzzle is loaded, restore the state
                 isGameOver = true;
                 currentGuess = data.guess || '';
                 renderInputGrid();
@@ -751,6 +750,8 @@
         
         revealBtn.addEventListener('click', () => {
             if (isGameOver) return;
+            currentGuess = currentPuzzle.guessWord; // Set guess to the correct answer
+            renderInputGrid(); // Update the main grid to show the answer
             showEndGameModal("Answer Revealed", "text-yellow-600", false);
             if (!isArchiveMode) {
                 const today = new Date().toISOString().split('T')[0];
