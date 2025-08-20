@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deducle</title>
+    <title>Fifth Guess</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -193,7 +193,7 @@
     <!-- Tutorial Modal -->
     <div id="tutorial-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-8 rounded-lg shadow-2xl text-center max-w-md w-full mx-4">
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to Deducle!</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to Fifth Guess!</h2>
             <p class="text-gray-600 mb-4">Your goal is to find the unique 5-letter word that matches the colored pattern.</p>
             <div class="text-left space-y-2 mb-6">
                 <p><span class="inline-block w-6 h-6 bg-green-500 rounded-sm mr-2 align-middle"></span> A <span class="font-bold">green</span> square means the letter is in the correct position.</p>
@@ -205,7 +205,7 @@
     </div>
     
     <footer class="w-full text-center text-gray-500 text-sm py-4">
-        Designed by Your Name
+        Designed by Graeme Wells
     </footer>
 
     <script>
@@ -685,7 +685,7 @@
             const time = finalTimeEl.textContent.replace('Time: ', '');
             const pattern = currentPuzzle.pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
 
-            const shareText = `Deducle #${puzzleNumber} - ${stars}\nTime: ${time}\n${pattern}`;
+            const shareText = `Fifth Guess #${puzzleNumber} - ${stars}\nTime: ${time}\n${pattern}`;
             
             const textArea = document.createElement("textarea");
             textArea.value = shareText;
@@ -708,7 +708,7 @@
             const avgMinutes = String(Math.floor(avgTimeSec / 60)).padStart(2, '0');
             const avgSeconds = String(avgTimeSec % 60).padStart(2, '0');
 
-            const shareText = `My Deducle Stats:\n` +
+            const shareText = `My Fifth Guess Stats:\n` +
                               `- Puzzles Played: ${stats.puzzlesPlayed}\n` +
                               `- Average Stars: ${avgStarsNum.toFixed(1)} ★\n` +
                               `- Average Time: ${avgMinutes}:${avgSeconds}\n` +
