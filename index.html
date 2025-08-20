@@ -653,14 +653,19 @@
             localStorage.setItem(`deducleProgress-${today}`, JSON.stringify(progress));
         }
 
-        function checkDailyProgress() {
+        async function checkDailyProgress() {
             const today = new Date().toISOString().split('T')[0];
             const progress = localStorage.getItem(`deducleProgress-${today}`);
             if (progress) {
                 const data = JSON.parse(progress);
-                startGame();
+                
+                startScreenEl.style.display = 'none';
+                mainGameWrapperEl.style.display = 'grid';
+                
+                await initGame();
+                
                 isGameOver = true;
-                currentGuess = data.guess;
+                currentGuess = data.guess || '';
                 renderInputGrid();
                 
                 if (data.revealed) {
@@ -668,6 +673,8 @@
                 } else {
                     showEndGameModal("You got it!", "text-green-600", true, data.time);
                 }
+            } else {
+                checkTutorial();
             }
         }
         
@@ -678,7 +685,7 @@
             const time = finalTimeEl.textContent.replace('Time: ', '');
             const pattern = currentPuzzle.pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
 
-            const shareText = `Deducle #${puzzleNumber} - ${stars}\nTime: ${time}\n${pattern}`;
+            const shareText = `Fifth Guess #${puzzleNumber} - ${stars}\nTime: ${time}\n${pattern}`;
             
             const textArea = document.createElement("textarea");
             textArea.value = shareText;
@@ -746,7 +753,7 @@
             showEndGameModal("Answer Revealed", "text-yellow-600", false);
             if (!isArchiveMode) {
                 const today = new Date().toISOString().split('T')[0];
-                localStorage.setItem(`deducleProgress-${today}`, JSON.stringify({ revealed: true }));
+                localStorage.setItem(`deducleProgress-${today}`, JSON.stringify({ guess: currentGuess, revealed: true }));
             }
         });
         
