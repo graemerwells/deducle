@@ -682,7 +682,7 @@
                 renderInputGrid();
                 
                 if (data.revealed) {
-                    showEndGameModal("Try Again Tomorrow!", "text-yellow-600", false);
+                    showEndGameModal("Answer Revealed", "text-yellow-600", false);
                 } else {
                     showEndGameModal("You got it!", "text-green-600", true, data.time);
                 }
@@ -766,7 +766,7 @@
             if (isGameOver) return;
             currentGuess = currentPuzzle.guessWord; // Set guess to the correct answer
             renderInputGrid(); // Update the main grid to show the answer
-            showEndGameModal("Answer Revealed", "text-yellow-600", false);
+            showEndGameModal("Try Again Tomorrow", "text-yellow-600", false);
             if (!isArchiveMode) {
                 updateStats(0, false); // Update stats for a revealed game
                 saveDailyProgress(0, true);
