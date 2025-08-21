@@ -163,8 +163,12 @@
             <h2 class="text-3xl font-bold text-gray-800 mb-6">Player Stats</h2>
             <div class="grid grid-cols-2 gap-4 text-lg">
                 <div class="flex flex-col">
-                    <span id="puzzles-played" class="text-4xl font-bold">0</span>
-                    <span class="text-sm text-gray-500">Puzzles Played</span>
+                    <span id="games-attempted" class="text-4xl font-bold">0</span>
+                    <span class="text-sm text-gray-500">Games Attempted</span>
+                </div>
+                <div class="flex flex-col">
+                    <span id="games-completed" class="text-4xl font-bold">0</span>
+                    <span class="text-sm text-gray-500">Games Completed</span>
                 </div>
                 <div class="flex flex-col">
                     <span id="avg-stars" class="text-4xl font-bold">0.0 ★</span>
@@ -178,7 +182,7 @@
                     <span id="current-streak" class="text-4xl font-bold">0</span>
                     <span class="text-sm text-gray-500">Current Streak</span>
                 </div>
-                <div class="flex flex-col col-span-2">
+                <div class="flex flex-col">
                     <span id="max-streak" class="text-4xl font-bold">0</span>
                     <span class="text-sm text-gray-500">Max Streak</span>
                 </div>
@@ -352,8 +356,8 @@
                 const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
                 showEndGameModal("You got it!", "text-green-600", true, elapsedTime);
                 if (!isArchiveMode) {
-                    updateStats(elapsedTime);
-                    saveDailyProgress(elapsedTime);
+                    updateStats(elapsedTime, true);
+                    saveDailyProgress(elapsedTime, false);
                 }
             } else {
                 showToast("That's not the one!");
@@ -580,7 +584,8 @@
         function getStats() {
             const statsString = localStorage.getItem('deducleStats');
             const defaults = {
-                puzzlesPlayed: 0,
+                gamesAttempted: 0,
+                gamesCompleted: 0,
                 totalStars: 0,
                 currentStreak: 0,
                 maxStreak: 0,
@@ -595,27 +600,34 @@
             return defaults;
         }
 
-        function updateStats(elapsedTime) {
+        function updateStats(elapsedTime, isWin) {
             let stats = getStats();
             const today = new Date().toISOString().split('T')[0];
             const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
-            stats.puzzlesPlayed++;
-            stats.totalTime += elapsedTime;
+            stats.gamesAttempted++;
             
-            let stars = 0;
-            if (elapsedTime < 30) stars = 5;
-            else if (elapsedTime < 60) stars = 4;
-            else if (elapsedTime < 120) stars = 3;
-            else if (elapsedTime < 300) stars = 2;
-            else stars = 1;
-            stats.totalStars += stars;
+            if (isWin) {
+                stats.gamesCompleted++;
+                stats.totalTime += elapsedTime;
+                
+                let stars = 0;
+                if (elapsedTime < 30) stars = 5;
+                else if (elapsedTime < 60) stars = 4;
+                else if (elapsedTime < 120) stars = 3;
+                else if (elapsedTime < 300) stars = 2;
+                else stars = 1;
+                stats.totalStars += stars;
 
-            if (stats.lastPlayedDate === yesterday) {
-                stats.currentStreak++;
-            } else if (stats.lastPlayedDate !== today) {
-                stats.currentStreak = 1;
+                if (stats.lastPlayedDate === yesterday) {
+                    stats.currentStreak++;
+                } else if (stats.lastPlayedDate !== today) {
+                    stats.currentStreak = 1;
+                }
+            } else {
+                stats.currentStreak = 0;
             }
+
 
             if (stats.currentStreak > stats.maxStreak) {
                 stats.maxStreak = stats.currentStreak;
@@ -627,12 +639,13 @@
         
         function displayStats() {
             const stats = getStats();
-            document.getElementById('puzzles-played').textContent = stats.puzzlesPlayed;
+            document.getElementById('games-attempted').textContent = stats.gamesAttempted;
+            document.getElementById('games-completed').textContent = stats.gamesCompleted;
             
-            const avgStarsNum = stats.puzzlesPlayed > 0 ? (stats.totalStars / stats.puzzlesPlayed) : 0;
+            const avgStarsNum = stats.gamesCompleted > 0 ? (stats.totalStars / stats.gamesCompleted) : 0;
             document.getElementById('avg-stars').innerHTML = `${avgStarsNum.toFixed(1)} <span class="text-yellow-400">★</span>`;
             
-            const avgTimeSec = stats.puzzlesPlayed > 0 ? Math.round(stats.totalTime / stats.puzzlesPlayed) : 0;
+            const avgTimeSec = stats.gamesCompleted > 0 ? Math.round(stats.totalTime / stats.gamesCompleted) : 0;
             const avgMinutes = String(Math.floor(avgTimeSec / 60)).padStart(2, '0');
             const avgSeconds = String(avgTimeSec % 60).padStart(2, '0');
             document.getElementById('avg-time').textContent = `${avgMinutes}:${avgSeconds}`;
@@ -643,12 +656,12 @@
         }
         
         // --- Daily Progress Logic ---
-        function saveDailyProgress(elapsedTime) {
+        function saveDailyProgress(elapsedTime, revealed) {
             const today = new Date().toISOString().split('T')[0];
             const progress = {
                 guess: currentGuess,
                 time: elapsedTime,
-                revealed: false
+                revealed: revealed
             };
             localStorage.setItem(`deducleProgress-${today}`, JSON.stringify(progress));
         }
@@ -669,7 +682,7 @@
                 renderInputGrid();
                 
                 if (data.revealed) {
-                    showEndGameModal("Answer Revealed", "text-yellow-600", false);
+                    showEndGameModal("Try Again Tomorrow!", "text-yellow-600", false);
                 } else {
                     showEndGameModal("You got it!", "text-green-600", true, data.time);
                 }
@@ -703,13 +716,14 @@
 
         function handleShareStats() {
             const stats = getStats();
-            const avgStarsNum = stats.puzzlesPlayed > 0 ? (stats.totalStars / stats.puzzlesPlayed) : 0;
-            const avgTimeSec = stats.puzzlesPlayed > 0 ? Math.round(stats.totalTime / stats.puzzlesPlayed) : 0;
+            const avgStarsNum = stats.gamesCompleted > 0 ? (stats.totalStars / stats.gamesCompleted) : 0;
+            const avgTimeSec = stats.gamesCompleted > 0 ? Math.round(stats.totalTime / stats.gamesCompleted) : 0;
             const avgMinutes = String(Math.floor(avgTimeSec / 60)).padStart(2, '0');
             const avgSeconds = String(avgTimeSec % 60).padStart(2, '0');
 
             const shareText = `My Fifth Guess Stats:\n` +
-                              `- Puzzles Played: ${stats.puzzlesPlayed}\n` +
+                              `- Games Attempted: ${stats.gamesAttempted}\n` +
+                              `- Games Completed: ${stats.gamesCompleted}\n` +
                               `- Average Stars: ${avgStarsNum.toFixed(1)} ★\n` +
                               `- Average Time: ${avgMinutes}:${avgSeconds}\n` +
                               `- Current Streak: ${stats.currentStreak}\n` +
@@ -754,8 +768,8 @@
             renderInputGrid(); // Update the main grid to show the answer
             showEndGameModal("Answer Revealed", "text-yellow-600", false);
             if (!isArchiveMode) {
-                const today = new Date().toISOString().split('T')[0];
-                localStorage.setItem(`deducleProgress-${today}`, JSON.stringify({ guess: currentPuzzle.guessWord, revealed: true }));
+                updateStats(0, false); // Update stats for a revealed game
+                saveDailyProgress(0, true);
             }
         });
         
