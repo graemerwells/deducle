@@ -30,8 +30,8 @@ function generatePattern(guess, target) {
 
 exports.handler = async function(event) {
     
-    const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
-    if (!MAKE_WEBHOOK_URL) {
+    const AUTOMATION_WEBHOOK_URL = process.env.AUTOMATION_WEBHOOK_URL;
+    if (!AUTOMATION_WEBHOOK_URL) {
         console.error("Make Webhook URL not configured in environment variables.");
         return { 
             statusCode: 500, 
@@ -60,7 +60,7 @@ exports.handler = async function(event) {
     const postText = `5th Guess! - ${formattedDate}\n\nHere is today's pattern to solve!\n\n${emojiPattern}\n\nPlay here: https://5thguess.netlify.app`;
 
     try {
-        await fetch(MAKE_WEBHOOK_URL, {
+        await fetch(AUTOMATION_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ post: postText }),
