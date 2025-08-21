@@ -1,2 +1,4 @@
 [functions]
   directory = "netlify/functions"
+  [functions."get-daily-share-post"]
+    schedule = "0 10 * * *"
