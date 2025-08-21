@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5th Guess!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation; /* Prevents double-tap zoom on mobile */
+        }
+        .game-title {
+            font-family: 'Playfair Display', serif;
+        }
+        .tile {
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 2px solid #d1d5db; /* gray-300 */
+            transition: all 0.2s ease-in-out;
+        }
+        .pattern-tile {
+            width: 50px;
+            height: 50px;
+            border: 2px solid transparent;
+        }
+        .pattern-green, .key-green { background-color: #16a34a !important; color: white; }
+        .pattern-yellow, .key-yellow { background-color: #ca8a04 !important; color: white; }
+        .pattern-gray { background-color: #4b5563 !important; color: white; }
+        
+        /* Animation for incorrect guess */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .keyboard-btn {
+            transition: background-color 0.1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center min-h-screen p-4">
+
+    <header class="text-center w-full border-b border-gray-300 pb-4 pt-4 relative">
+        <h1 class="text-7xl font-bold tracking-tight text-gray-800 game-title">5th Guess</h1>
+        <p id="timer" class="text-2xl font-semibold text-gray-600 mt-2">00:00</p>
+        <div class="absolute top-4 right-0 flex gap-2">
+            <button id="stats-btn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 font-semibold transition-colors">Stats</button>
+        </div>
+    </header>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="flex flex-col items-center justify-center flex-grow text-center">
+        <div class="max-w-md mx-auto mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">How to Play</h2>
+            <p class="text-gray-600 mb-6">
+                Deduce the incorrect guess! Work out the unique five-letter word that fits the pattern as quickly as possible.
+            </p>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Star Rating</h2>
+            <ul class="text-gray-600 space-y-1">
+                <li><span class="text-yellow-400 text-xl">★★★★★</span> Under 30 seconds</li>
+                <li><span class="text-yellow-400 text-xl">★★★★☆</span> Under 1 minute</li>
+                <li><span class="text-yellow-400 text-xl">★★★☆☆</span> Under 2 minutes</li>
+                <li><span class="text-yellow-400 text-xl">★★☆☆☆</span> Under 5 minutes</li>
+                <li><span class="text-yellow-400 text-xl">★☆☆☆☆</span> 5 minutes or more</li>
+            </ul>
+        </div>
+        <button id="start-btn" class="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 font-bold transition-colors text-2xl shadow-lg">Start Today's Puzzle</button>
+    </div>
+
+    <!-- Main Game Wrapper (Initially Hidden) -->
+    <div id="main-game-wrapper" style="display: none;" class="w-full max-w-6xl mx-auto lg:grid lg:grid-cols-3 lg:gap-8 lg:items-start flex-grow">
+        <!-- Game Column -->
+        <div class="lg:col-span-2">
+            <main id="game-container" class="flex flex-col items-center gap-8 my-8">
+                <!-- Input Grid -->
+                <div id="input-grid" class="flex gap-2">
+                    <div class="tile rounded-md"></div>
+                    <div class="tile rounded-md"></div>
+                    <div class="tile rounded-md"></div>
+                    <div class="tile rounded-md"></div>
+                    <div class="tile rounded-md"></div>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-gray-600 mb-2">Final Word:</p>
+                    <div id="final-word" class="flex gap-2 justify-center"></div>
+                </div>
+
+                <!-- Reveal Button -->
+                <button id="reveal-btn" class="text-sm text-gray-500 hover:text-gray-700 underline transition-colors hidden">Reveal Answer</button>
+                <button id="share-results-btn" class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-semibold transition-colors text-lg hidden">Share Results</button>
+                
+                <!-- Message Toast -->
+                <div id="toast" class="absolute top-20 bg-gray-800 text-white px-6 py-2 rounded-full text-sm font-semibold opacity-0 transition-opacity duration-300">
+                    Copied to clipboard!
+                </div>
+            </main>
+
+            <footer id="keyboard" class="w-full max-w-lg mx-auto">
+                <!-- Virtual Keyboard will be generated here by JS -->
+            </footer>
+        </div>
+
+        <!-- Rules Column -->
+        <aside class="hidden lg:block lg:col-span-1 bg-white p-6 rounded-lg shadow-lg mt-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">How to Play</h2>
+            <p class="text-gray-600 mb-6">
+                Deduce the incorrect guess! Work out the unique five-letter word that fits the pattern as quickly as possible.
+            </p>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Star Rating</h2>
+            <ul class="text-gray-600 space-y-1">
+                <li><span class="text-yellow-400 text-xl">★★★★★</span> Under 30 seconds</li>
+                <li><span class="text-yellow-400 text-xl">★★★★☆</span> Under 1 minute</li>
+                <li><span class="text-yellow-400 text-xl">★★★☆☆</span> Under 2 minutes</li>
+                <li><span class="text-yellow-400 text-xl">★★☆☆☆</span> Under 5 minutes</li>
+                <li><span class="text-yellow-400 text-xl">★☆☆☆☆</span> 5 minutes or more</li>
+            </ul>
+        </aside>
+    </div>
+    
+    <!-- Win Modal -->
+    <div id="win-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center pb-12 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-2xl text-center max-w-sm w-full mx-4 flex flex-col items-center">
+            <h2 id="modal-title" class="text-3xl font-bold text-green-600 mb-4">You got it!</h2>
+            
+            <div id="star-rating" class="flex text-yellow-400 text-4xl mb-2">
+                <!-- Stars will be inserted here -->
+            </div>
+            <p id="star-message" class="text-sm text-gray-500 mb-4"></p>
+
+            <p class="mb-2 text-gray-600">Correct Guess:</p>
+            <div id="modal-guess-word-display" class="flex gap-2 mb-4"></div>
+
+            <p class="mb-2 text-gray-600">Final Word:</p>
+            <div id="modal-final-word-display" class="flex gap-2 mb-4"></div>
+            
+            <p id="final-time" class="text-lg text-gray-700 mb-6 font-semibold"></p>
+            <div class="flex gap-2 w-full">
+                <button id="see-stats-btn" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-semibold transition-colors text-lg flex-1">See Stats</button>
+                <button id="share-btn" class="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 font-semibold transition-colors text-lg flex-1">Share</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-lg shadow-2xl text-center max-w-sm w-full mx-4">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Player Stats</h2>
+            <div class="grid grid-cols-2 gap-4 text-lg">
+                <div class="flex flex-col">
+                    <span id="games-attempted" class="text-4xl font-bold">0</span>
+                    <span class="text-sm text-gray-500">Games Attempted</span>
+                </div>
+                <div class="flex flex-col">
+                    <span id="games-completed" class="text-4xl font-bold">0</span>
+                    <span class="text-sm text-gray-500">Games Completed</span>
+                </div>
+                <div class="flex flex-col">
+                    <span id="avg-stars" class="text-4xl font-bold">0.0 ★</span>
+                    <span class="text-sm text-gray-500">Avg. Stars</span>
+                </div>
+                 <div class="flex flex-col">
+                    <span id="avg-time" class="text-4xl font-bold">00:00</span>
+                    <span class="text-sm text-gray-500">Avg. Time</span>
+                </div>
+                <div class="flex flex-col">
+                    <span id="current-streak" class="text-4xl font-bold">0</span>
+                    <span class="text-sm text-gray-500">Current Streak</span>
+                </div>
+                <div class="flex flex-col">
+                    <span id="max-streak" class="text-4xl font-bold">0</span>
+                    <span class="text-sm text-gray-500">Max Streak</span>
+                </div>
+            </div>
+            <div class="mt-8 flex gap-2 w-full">
+                <button id="close-stats-btn" class="bg-gray-600 text-white px-6 py-3 rounded-md hover:bg-gray-700 font-semibold transition-colors text-lg flex-1">Close</button>
+                <button id="share-stats-btn" class="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 font-semibold transition-colors text-lg flex-1">Share Stats</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div id="tutorial-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-lg shadow-2xl text-center max-w-md w-full mx-4">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to 5th Guess!</h2>
+            <p class="text-gray-600 mb-4">Your goal is to find the unique 5-letter word that matches the colored pattern.</p>
+            <div class="text-left space-y-2 mb-6">
+                <p><span class="inline-block w-6 h-6 bg-green-500 rounded-sm mr-2 align-middle"></span> A <span class="font-bold">green</span> square means the letter is in the correct position.</p>
+                <p><span class="inline-block w-6 h-6 bg-yellow-500 rounded-sm mr-2 align-middle"></span> A <span class="font-bold">yellow</span> square means the letter is in the word, but in the wrong position.</p>
+                <p><span class="inline-block w-6 h-6 bg-gray-600 rounded-sm mr-2 align-middle"></span> A <span class="font-bold">gray</span> square means the letter is not in the word at all.</p>
+            </div>
+            <button id="close-tutorial-btn" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-semibold transition-colors text-lg w-full">Start Playing</button>
+        </div>
+    </div>
+    
+    <footer class="w-full text-center text-gray-500 text-sm py-4">
+        Designed by Graeme Wells <br>
+        <a href="https://laquintaprova.netlify.app" target="_blank">Italian? Try La Quinta Prova!</a> 
+    </footer>
+
+    <script>
+        // --- DOM Elements ---
+        const finalWordEl = document.getElementById('final-word');
+        const inputGridEl = document.getElementById('input-grid');
+        const toastEl = document.getElementById('toast');
+        const keyboardEl = document.getElementById('keyboard');
+        const winModalEl = document.getElementById('win-modal');
+        const modalTitleEl = document.getElementById('modal-title');
+        const modalGuessWordDisplayEl = document.getElementById('modal-guess-word-display');
+        const modalFinalWordDisplayEl = document.getElementById('modal-final-word-display');
+        const seeStatsBtn = document.getElementById('see-stats-btn');
+        const revealBtn = document.getElementById('reveal-btn');
+        const startBtn = document.getElementById('start-btn');
+        const startScreenEl = document.getElementById('start-screen');
+        const mainGameWrapperEl = document.getElementById('main-game-wrapper');
+        const timerEl = document.getElementById('timer');
+        const finalTimeEl = document.getElementById('final-time');
+        const starRatingEl = document.getElementById('star-rating');
+        const starMessageEl = document.getElementById('star-message');
+        const statsBtn = document.getElementById('stats-btn');
+        const statsModalEl = document.getElementById('stats-modal');
+        const closeStatsBtn = document.getElementById('close-stats-btn');
+        const shareBtn = document.getElementById('share-btn');
+        const tutorialModalEl = document.getElementById('tutorial-modal');
+        const closeTutorialBtn = document.getElementById('close-tutorial-btn');
+        const shareResultsBtn = document.getElementById('share-results-btn');
+        const shareStatsBtn = document.getElementById('share-stats-btn');
+
+
+        // --- Game State ---
+        let currentPuzzle = {};
+        let currentGuess = '';
+        let isGameOver = false;
+        let timerInterval = null;
+        let startTime = 0;
+        let isArchiveMode = false;
+
+        // --- Game Logic ---
+        function generatePattern(guess, target) {
+            if (!guess || !target) return 'BBBBB';
+            const pattern = Array(5).fill('B'); // B for Black/Gray
+            const targetLetters = target.split('');
+            const guessLetters = guess.split('');
+
+            // First pass for greens (G)
+            for (let i = 0; i < 5; i++) {
+                if (guessLetters[i] === targetLetters[i]) {
+                    pattern[i] = 'G';
+                    targetLetters[i] = null;
+                    guessLetters[i] = null;
+                }
+            }
+            // Second pass for yellows (Y)
+            for (let i = 0; i < 5; i++) {
+                if (guessLetters[i] !== null) {
+                    const yellowIndex = targetLetters.indexOf(guessLetters[i]);
+                    if (yellowIndex !== -1) {
+                        pattern[i] = 'Y';
+                        targetLetters[yellowIndex] = null;
+                    }
+                }
+            }
+            return pattern.join('');
+        }
+        
+        /**
+         * Sets up a new puzzle and resets the UI.
+         */
+        async function initGame(isDaily = true) {
+            isGameOver = false;
+            currentGuess = '';
+            
+            stopTimer();
+            timerEl.innerHTML = '00:00';
+            
+            try {
+                const response = await fetch('/.netlify/functions/get-daily-puzzle');
+                if (!response.ok) throw new Error('Failed to fetch puzzle');
+                currentPuzzle = await response.json();
+            } catch (error) {
+                console.error("Error fetching puzzle:", error);
+                mainGameWrapperEl.innerHTML = `<p class="text-red-500 text-center mt-8">Could not load puzzle. Please try again later.</p>`;
+                return;
+            }
+            
+            currentPuzzle.pattern = generatePattern(currentPuzzle.guessWord, currentPuzzle.finalWord);
+
+            renderFinalWordOnBoard(currentPuzzle.finalWord);
+            renderInputGrid();
+            renderKeyboard();
+            updateKeyboardColors();
+            winModalEl.classList.add('hidden');
+            revealBtn.classList.add('hidden');
+            shareResultsBtn.classList.add('hidden');
+        }
+        
+        /**
+         * Starts the game, hiding the start screen and showing the puzzle.
+         */
+        function startGame() {
+            isArchiveMode = false;
+            startScreenEl.style.display = 'none';
+            mainGameWrapperEl.style.display = 'grid';
+            initGame(true);
+            startTimer();
+        }
+
+        function handleKeyPress(key) {
+            if (isGameOver) return;
+
+            if (key === 'ENTER') {
+                if (currentGuess.length === 5) submitGuess();
+            } else if (key === 'BACKSPACE') {
+                if (currentGuess.length > 0) currentGuess = currentGuess.slice(0, -1);
+            } else if (currentGuess.length < 5 && /^[A-Z]$/.test(key)) {
+                currentGuess += key;
+            }
+            renderInputGrid();
+        }
+
+        async function submitGuess() {
+            // Validate word against the backend
+            try {
+                const response = await fetch('/.netlify/functions/validate-word', {
+                    method: 'POST',
+                    body: JSON.stringify({ word: currentGuess })
+                });
+                const data = await response.json();
+                if (!data.isValid) {
+                    showToast("Not in word list");
+                    shakeInput();
+                    return;
+                }
+            } catch (error) {
+                console.error("Error validating word:", error);
+                showToast("Could not validate word.");
+                return;
+            }
+
+
+            if (currentGuess === currentPuzzle.guessWord) {
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                showEndGameModal("You got it!", "text-green-600", true, elapsedTime);
+                if (!isArchiveMode) {
+                    updateStats(elapsedTime, true);
+                    saveDailyProgress(elapsedTime, false);
+                }
+            } else {
+                showToast("That's not the one!");
+                shakeInput();
+            }
+        }
+        
+        // --- Timer Functions ---
+        function startTimer() {
+            stopTimer(); // Ensure no multiple timers are running
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function updateTimer() {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = String(Math.floor(elapsedTime / 60)).padStart(2, '0');
+            const seconds = String(elapsedTime % 60).padStart(2, '0');
+            timerEl.textContent = `${minutes}:${seconds}`;
+            
+            if (!isGameOver && elapsedTime >= 300) {
+                revealBtn.classList.remove('hidden');
+            }
+        }
+
+
+        // --- UI Rendering & Feedback ---
+        function renderFinalWordOnBoard(word) {
+            finalWordEl.innerHTML = '';
+            for (const letter of word) {
+                const tile = document.createElement('div');
+                tile.className = 'tile rounded-md pattern-green';
+                tile.style.borderColor = 'transparent';
+                tile.textContent = letter;
+                finalWordEl.appendChild(tile);
+            }
+        }
+
+        function renderInputGrid() {
+            const tiles = inputGridEl.children;
+            const pattern = currentPuzzle.pattern;
+
+            for (let i = 0; i < 5; i++) {
+                const tile = tiles[i];
+                const status = pattern[i];
+
+                tile.className = 'tile rounded-md';
+                
+                if (status === 'G') {
+                    tile.classList.add('pattern-green');
+                } else if (status === 'Y') {
+                    tile.classList.add('pattern-yellow');
+                } else {
+                    tile.classList.add('pattern-gray');
+                }
+
+                tile.textContent = currentGuess[i] || '';
+                tile.style.borderColor = 'transparent';
+            }
+        }
+
+        function renderKeyboard() {
+            keyboardEl.innerHTML = '';
+            const keys = [
+                ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+                ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
+            ];
+
+            keys.forEach(row => {
+                const rowEl = document.createElement('div');
+                rowEl.className = 'flex justify-center gap-1 my-1';
+                row.forEach(key => {
+                    const btn = document.createElement('button');
+                    btn.className = 'keyboard-btn h-14 rounded-md font-semibold uppercase flex-1 bg-gray-300 hover:bg-gray-400';
+                    btn.textContent = key;
+                    btn.dataset.key = key;
+                    if (key.length > 1) {
+                        btn.style.flex = '1.5';
+                        btn.style.fontSize = '0.75rem';
+                    }
+                    btn.addEventListener('click', () => handleKeyPress(key));
+                    rowEl.appendChild(btn);
+                });
+                keyboardEl.appendChild(rowEl);
+            });
+        }
+        
+        function updateKeyboardColors() {
+            const letterColors = {};
+            const pattern = currentPuzzle.pattern;
+            
+            for (let i = 0; i < 5; i++) {
+                const char = currentPuzzle.guessWord[i];
+                const status = pattern[i];
+                if (status === 'G') {
+                    letterColors[char] = 'green';
+                }
+            }
+
+            document.querySelectorAll('.keyboard-btn').forEach(btn => {
+                btn.classList.remove('key-green', 'key-yellow');
+                const key = btn.dataset.key;
+                if (letterColors[key] === 'green') {
+                    btn.classList.add('key-green');
+                }
+            });
+        }
+
+        function renderWordInModal(word, pattern, containerEl) {
+            containerEl.innerHTML = '';
+            const colors = {
+                'G': '#16a34a', // green
+                'Y': '#ca8a04', // yellow
+                'B': '#4b5563'  // gray
+            };
+
+            for (let i = 0; i < 5; i++) {
+                const letter = word[i];
+                const tile = document.createElement('div');
+                
+                tile.className = 'rounded-md inline-flex items-center justify-center font-bold uppercase text-white';
+                tile.style.width = '50px';
+                tile.style.height = '50px';
+                tile.style.fontSize = '2rem';
+                tile.textContent = letter;
+
+                const status = pattern[i];
+                tile.style.backgroundColor = colors[status] || colors['B'];
+                
+                containerEl.appendChild(tile);
+            }
+        }
+        
+        function showEndGameModal(title, titleColorClass, showStars = false, elapsedTime = 0) {
+            isGameOver = true;
+            stopTimer();
+            modalTitleEl.textContent = title;
+            modalTitleEl.className = `text-3xl font-bold ${titleColorClass} mb-4`;
+
+            renderWordInModal(currentPuzzle.guessWord, currentPuzzle.pattern, modalGuessWordDisplayEl);
+            renderWordInModal(currentPuzzle.finalWord, 'GGGGG', modalFinalWordDisplayEl);
+            
+            const minutes = String(Math.floor(elapsedTime / 60)).padStart(2, '0');
+            const seconds = String(elapsedTime % 60).padStart(2, '0');
+            const finalTimeFormatted = `${minutes}:${seconds}`;
+
+            finalTimeEl.textContent = `Time: ${finalTimeFormatted}`;
+            
+            if (showStars) {
+                let stars = 0;
+                let starMessage = '';
+
+                if (elapsedTime < 30) {
+                    stars = 5;
+                    starMessage = '5/5 Stars! (Under 30 seconds)';
+                } else if (elapsedTime < 60) {
+                    stars = 4;
+                    starMessage = '4/5 Stars! (Under 1 minute)';
+                } else if (elapsedTime < 120) {
+                    stars = 3;
+                    starMessage = '3/5 Stars! (Under 2 minutes)';
+                } else if (elapsedTime < 300) {
+                    stars = 2;
+                    starMessage = '2/5 Stars! (Under 5 minutes)';
+                } else {
+                    stars = 1;
+                    starMessage = '1/5 Stars! (5 minutes or more)';
+                }
+                
+                starRatingEl.innerHTML = '';
+                for (let i = 0; i < 5; i++) {
+                    const star = document.createElement('span');
+                    star.innerHTML = i < stars ? '★' : '☆';
+                    starRatingEl.appendChild(star);
+                }
+                starMessageEl.textContent = starMessage;
+                
+                if (!isArchiveMode) {
+                    timerEl.innerHTML = `Today's puzzle completed in <span class="font-bold">${finalTimeFormatted}</span> <span class="text-yellow-400">${starRatingEl.innerHTML}</span>`;
+                }
+                starRatingEl.style.display = 'flex';
+                starMessageEl.style.display = 'block';
+
+            } else {
+                if (!isArchiveMode) {
+                    timerEl.textContent = "Today's puzzle revealed";
+                }
+                starRatingEl.style.display = 'none';
+                starMessageEl.style.display = 'none';
+            }
+            
+            if (isArchiveMode) {
+                seeStatsBtn.textContent = "Back to Main";
+            } else {
+                seeStatsBtn.textContent = "See Stats";
+                shareResultsBtn.classList.remove('hidden');
+            }
+
+            winModalEl.classList.remove('hidden');
+        }
+
+
+        function showToast(message) {
+            toastEl.textContent = message;
+            toastEl.classList.remove('opacity-0');
+            setTimeout(() => {
+                toastEl.classList.add('opacity-0');
+            }, 1500);
+        }
+
+        function shakeInput() {
+            inputGridEl.classList.add('shake');
+            setTimeout(() => {
+                inputGridEl.classList.remove('shake');
+            }, 500);
+        }
+        
+        // --- Stats Logic ---
+        function getStats() {
+            const statsString = localStorage.getItem('deducleStats');
+            const defaults = {
+                gamesAttempted: 0,
+                gamesCompleted: 0,
+                totalStars: 0,
+                currentStreak: 0,
+                maxStreak: 0,
+                lastPlayedDate: null,
+                totalTime: 0
+            };
+            
+            if (statsString) {
+                const savedStats = JSON.parse(statsString);
+                return { ...defaults, ...savedStats };
+            }
+            return defaults;
+        }
+
+        function updateStats(elapsedTime, isWin) {
+            let stats = getStats();
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+            stats.gamesAttempted++;
+            
+            if (isWin) {
+                stats.gamesCompleted++;
+                stats.totalTime += elapsedTime;
+                
+                let stars = 0;
+                if (elapsedTime < 30) stars = 5;
+                else if (elapsedTime < 60) stars = 4;
+                else if (elapsedTime < 120) stars = 3;
+                else if (elapsedTime < 300) stars = 2;
+                else stars = 1;
+                stats.totalStars += stars;
+
+                if (stats.lastPlayedDate === yesterday) {
+                    stats.currentStreak++;
+                } else if (stats.lastPlayedDate !== today) {
+                    stats.currentStreak = 1;
+                }
+            } else {
+                stats.currentStreak = 0;
+            }
+
+
+            if (stats.currentStreak > stats.maxStreak) {
+                stats.maxStreak = stats.currentStreak;
+            }
+
+            stats.lastPlayedDate = today;
+            localStorage.setItem('deducleStats', JSON.stringify(stats));
+        }
+        
+        function displayStats() {
+            const stats = getStats();
+            document.getElementById('games-attempted').textContent = stats.gamesAttempted;
+            document.getElementById('games-completed').textContent = stats.gamesCompleted;
+            
+            const avgStarsNum = stats.gamesCompleted > 0 ? (stats.totalStars / stats.gamesCompleted) : 0;
+            document.getElementById('avg-stars').innerHTML = `${avgStarsNum.toFixed(1)} <span class="text-yellow-400">★</span>`;
+            
+            const avgTimeSec = stats.gamesCompleted > 0 ? Math.round(stats.totalTime / stats.gamesCompleted) : 0;
+            const avgMinutes = String(Math.floor(avgTimeSec / 60)).padStart(2, '0');
+            const avgSeconds = String(avgTimeSec % 60).padStart(2, '0');
+            document.getElementById('avg-time').textContent = `${avgMinutes}:${avgSeconds}`;
+
+            document.getElementById('current-streak').textContent = stats.currentStreak;
+            document.getElementById('max-streak').textContent = stats.maxStreak;
+            statsModalEl.classList.remove('hidden');
+        }
+        
+        // --- Daily Progress Logic ---
+        function saveDailyProgress(elapsedTime, revealed) {
+            const today = new Date().toISOString().split('T')[0];
+            const progress = {
+                guess: currentGuess,
+                time: elapsedTime,
+                revealed: revealed
+            };
+            localStorage.setItem(`deducleProgress-${today}`, JSON.stringify(progress));
+        }
+
+        async function checkDailyProgress() {
+            const today = new Date().toISOString().split('T')[0];
+            const progress = localStorage.getItem(`deducleProgress-${today}`);
+            if (progress) {
+                const data = JSON.parse(progress);
+                
+                startScreenEl.style.display = 'none';
+                mainGameWrapperEl.style.display = 'grid';
+                
+                await initGame();
+                
+                isGameOver = true;
+                currentGuess = data.guess || '';
+                renderInputGrid();
+                
+                if (data.revealed) {
+                    showEndGameModal("Answer Revealed", "text-yellow-600", false);
+                } else {
+                    showEndGameModal("You got it!", "text-green-600", true, data.time);
+                }
+            } else {
+                checkTutorial();
+            }
+        }
+        
+        // --- Share Logic ---
+        function handleShare() {
+    // New: Get and format today's date
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so we add 1
+    const year = today.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
+
+    const stars = starRatingEl.textContent;
+    const time = finalTimeEl.textContent.replace('Time: ', '');
+    const pattern = currentPuzzle.pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
+    
+    // Updated shareText to use the date
+    const shareText = `5th Guess ${formattedDate} - ${stars}\nTime: ${time}\n${pattern}`;
+    
+    const textArea = document.createElement("textarea");
+    textArea.value = shareText;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        showToast('Results Copied!');
+    } catch (err) {
+        showToast('Copy Failed.');
+    }
+    document.body.removeChild(textArea);
+}
+
+        function handleShareStats() {
+            const stats = getStats();
+            const avgStarsNum = stats.gamesCompleted > 0 ? (stats.totalStars / stats.gamesCompleted) : 0;
+            const avgTimeSec = stats.gamesCompleted > 0 ? Math.round(stats.totalTime / stats.gamesCompleted) : 0;
+            const avgMinutes = String(Math.floor(avgTimeSec / 60)).padStart(2, '0');
+            const avgSeconds = String(avgTimeSec % 60).padStart(2, '0');
+
+            const shareText = `My 5th Guess Stats:\n` +
+                              `- Games Attempted: ${stats.gamesAttempted}\n` +
+                              `- Games Completed: ${stats.gamesCompleted}\n` +
+                              `- Average Stars: ${avgStarsNum.toFixed(1)} ★\n` +
+                              `- Average Time: ${avgMinutes}:${avgSeconds}\n` +
+                              `- Current Streak: ${stats.currentStreak}\n` +
+                              `- Max Streak: ${stats.maxStreak}`;
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = shareText;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Stats copied!');
+            } catch (err) {
+                showToast('Failed to copy.');
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        // --- Tutorial ---
+        function checkTutorial() {
+            if (!localStorage.getItem('deducleTutorialSeen')) {
+                tutorialModalEl.classList.remove('hidden');
+            }
+        }
+
+        // --- Event Listeners ---
+        startBtn.addEventListener('click', startGame);
+        seeStatsBtn.addEventListener('click', () => {
+            winModalEl.classList.add('hidden');
+            if(isArchiveMode) {
+                mainGameWrapperEl.style.display = 'none';
+                startScreenEl.style.display = 'flex';
+            } else {
+                displayStats();
+            }
+        });
+        
+        revealBtn.addEventListener('click', () => {
+            if (isGameOver) return;
+            currentGuess = currentPuzzle.guessWord; // Set guess to the correct answer
+            renderInputGrid(); // Update the main grid to show the answer
+            showEndGameModal("Try Again Tomorrow", "text-yellow-600", false);
+            if (!isArchiveMode) {
+                updateStats(0, false); // Update stats for a revealed game
+                saveDailyProgress(0, true);
+            }
+        });
+        
+        statsBtn.addEventListener('click', displayStats);
+        closeStatsBtn.addEventListener('click', () => statsModalEl.classList.add('hidden'));
+        shareBtn.addEventListener('click', handleShare);
+        shareResultsBtn.addEventListener('click', handleShare);
+        shareStatsBtn.addEventListener('click', handleShareStats);
+        
+        closeTutorialBtn.addEventListener('click', () => {
+            tutorialModalEl.classList.add('hidden');
+            localStorage.setItem('deducleTutorialSeen', 'true');
+        });
+
+        // Physical keyboard support
+        window.addEventListener('keydown', (e) => {
+            let key = e.key.toUpperCase();
+            if (key === 'BACKSPACE') {
+                handleKeyPress('BACKSPACE');
+            } else if (key === 'ENTER') {
+                handleKeyPress('ENTER');
+            } else if (/^[A-Z]$/.test(key)) {
+                handleKeyPress(key);
+            }
+        });
+        
+        // --- Initial Load ---
+        checkDailyProgress();
+        if (!localStorage.getItem(`deducleProgress-${new Date().toISOString().split('T')[0]}`)) {
+            checkTutorial();
+        }
+
+    </script>
+</body>
+</html>
