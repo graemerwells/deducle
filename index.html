@@ -693,26 +693,33 @@
         
         // --- Share Logic ---
         function handleShare() {
-            const puzzleNumber = currentPuzzle.puzzleNumber;
-            const stars = starRatingEl.textContent;
-            const time = finalTimeEl.textContent.replace('Time: ', '');
-            const pattern = currentPuzzle.pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
+    // New: Get and format today's date
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so we add 1
+    const year = today.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
 
-            const shareText = `Fifth Guess #${puzzleNumber} - ${stars}\nTime: ${time}\n${pattern}`;
-            
-            const textArea = document.createElement("textarea");
-            textArea.value = shareText;
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                showToast('Results copied!');
-            } catch (err) {
-                showToast('Failed to copy.');
-            }
-            document.body.removeChild(textArea);
-        }
+    const stars = starRatingEl.textContent;
+    const time = finalTimeEl.textContent.replace('Time: ', '');
+    const pattern = currentPuzzle.pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
+    
+    // Updated shareText to use the date
+    const shareText = `5th Guess ${formattedDate} - ${stars}\nTempo: ${time}\n${pattern}`;
+    
+    const textArea = document.createElement("textarea");
+    textArea.value = shareText;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        showToast('Results Copied!');
+    } catch (err) {
+        showToast('Copy Failed.');
+    }
+    document.body.removeChild(textArea);
+}
 
         function handleShareStats() {
             const stats = getStats();
