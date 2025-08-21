@@ -4,7 +4,7 @@
 // This line assumes your puzzle logic is in a file named 'puzzle-logic.js'
 // in the same directory and it exports a function called 'getTodaysPuzzle'.
 // Please adjust the path and function name to match your project structure.
-const { getTodaysPuzzle } = require('./puzzle-logic.js');
+const { getTodaysPuzzle } = require(‘./get-daily-puzzle.js');
 
 
 // This utility function generates the colored squares pattern.
@@ -61,7 +61,7 @@ exports.handler = async function(event) {
     const formattedDate = `${day}/${month}/${year}`;
 
     // Replace "your-domain.com" with your actual website domain.
-    const postText = `La Quinta Prova - ${formattedDate}\n\nHere is today's pattern to solve!\n\n${emojiPattern}\n\nPlay here: https://your-domain.com`;
+    const postText = `5th Guess!- ${formattedDate}\n\nHere is today's pattern to solve!\n\n${emojiPattern}\n\nPlay here: https://5thguess.netfliy.app`;
 
     // Send the generated text to your Make.com Webhook.
     try {
