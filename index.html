@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fifth Guess</title>
+    <title>5th Guess!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,7 +56,7 @@
 <body class="bg-gray-100 flex flex-col items-center min-h-screen p-4">
 
     <header class="text-center w-full border-b border-gray-300 pb-4 pt-4 relative">
-        <h1 class="text-7xl font-bold tracking-tight text-gray-800 game-title">Fifth Guess</h1>
+        <h1 class="text-7xl font-bold tracking-tight text-gray-800 game-title">5th Guess</h1>
         <p id="timer" class="text-2xl font-semibold text-gray-600 mt-2">00:00</p>
         <div class="absolute top-4 right-0 flex gap-2">
             <button id="stats-btn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 font-semibold transition-colors">Stats</button>
@@ -197,7 +197,7 @@
     <!-- Tutorial Modal -->
     <div id="tutorial-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-8 rounded-lg shadow-2xl text-center max-w-md w-full mx-4">
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to Fifth Guess!</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to 5th Guess!</h2>
             <p class="text-gray-600 mb-4">Your goal is to find the unique 5-letter word that matches the colored pattern.</p>
             <div class="text-left space-y-2 mb-6">
                 <p><span class="inline-block w-6 h-6 bg-green-500 rounded-sm mr-2 align-middle"></span> A <span class="font-bold">green</span> square means the letter is in the correct position.</p>
@@ -705,7 +705,7 @@
     const pattern = currentPuzzle.pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
     
     // Updated shareText to use the date
-    const shareText = `5th Guess ${formattedDate} - ${stars}\nTempo: ${time}\n${pattern}`;
+    const shareText = `5th Guess ${formattedDate} - ${stars}\nTime: ${time}\n${pattern}`;
     
     const textArea = document.createElement("textarea");
     textArea.value = shareText;
@@ -728,7 +728,7 @@
             const avgMinutes = String(Math.floor(avgTimeSec / 60)).padStart(2, '0');
             const avgSeconds = String(avgTimeSec % 60).padStart(2, '0');
 
-            const shareText = `My Fifth Guess Stats:\n` +
+            const shareText = `My 5th Guess Stats:\n` +
                               `- Games Attempted: ${stats.gamesAttempted}\n` +
                               `- Games Completed: ${stats.gamesCompleted}\n` +
                               `- Average Stars: ${avgStarsNum.toFixed(1)} ★\n` +
