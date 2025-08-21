@@ -1,7 +1,7 @@
 // In file: /netlify/functions/get-daily-share-post.js
 
-// --- TEMPORARY TEST CODE ---
-// We are NOT importing your puzzle logic for this test.
+// This function now contains its own logic to get the daily puzzle.
+const { PUZZLES_JSON } = require('./puzzles.js');
 
 function generatePattern(guess, target) {
     if (!guess || !target) return 'BBBBB';
@@ -29,16 +29,23 @@ function generatePattern(guess, target) {
 }
 
 exports.handler = async function(event) {
+    
     const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
     if (!MAKE_WEBHOOK_URL) {
-        return { statusCode: 500, body: "Make Webhook URL not set." };
+        console.error("Make Webhook URL not configured in environment variables.");
+        return { 
+            statusCode: 500, 
+            body: "Server configuration error: Make Webhook URL not set." 
+        };
     }
 
-    // --- Using a hardcoded puzzle for the test ---
-    const todaysPuzzle = {
-        guessWord: "TESTO",
-        finalWord: "PROVA"
-    };
+    // --- Puzzle logic is now directly inside this function ---
+    const epochDate = new Date('2024-01-01');
+    const now = new Date();
+    const msSinceEpoch = now - epochDate;
+    const daysSinceEpoch = Math.floor(msSinceEpoch / (1000 * 60 * 60 * 24));
+    const puzzleIndex = daysSinceEpoch % PUZZLES_JSON.length;
+    const todaysPuzzle = PUZZLES_JSON[puzzleIndex];
     
     const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
@@ -49,7 +56,8 @@ exports.handler = async function(event) {
     const year = today.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
 
-    const postText = `La Quinta Prova - ${formattedDate}\n\nHere is today's pattern to solve!\n\n${emojiPattern}\n\nPlay here: https://your-domain.com`;
+    // Replace "your-domain.com" with your actual website domain.
+    const postText = `5th Guess! - ${formattedDate}\n\nHere is today's pattern to solve!\n\n${emojiPattern}\n\nPlay here: https://5thguess.netlify.app`;
 
     try {
         await fetch(MAKE_WEBHOOK_URL, {
@@ -60,9 +68,10 @@ exports.handler = async function(event) {
         
         return {
             statusCode: 200,
-            body: "Successfully sent TEST data to Make.com.",
+            body: "Successfully sent data to Make.com.",
         };
     } catch (error) {
+        console.error("Error sending data to Make.com:", error);
         return {
             statusCode: 500,
             body: "Failed to send data to Make.com.",
