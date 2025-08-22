@@ -57,7 +57,7 @@ exports.handler = async function(event) {
     const formattedDate = `${day}/${month}/${year}`;
 
     // Replace "your-domain.com" with your actual website domain.
-    const postText = `5th Guess! - ${formattedDate}\n\nHere is today's pattern to solve!\n\n${emojiPattern}\n\nPlay here: https://5thguess.netlify.app`;
+    const postText = `5th Guess! - ${formattedDate}\n\nHere is today's pattern to solve!\n\n${emojiPattern}\n\nPlay here: https://5thguess.netlify.app\n#5thGuess #WordGames #Puzzle #Wordle #WordleSky`;
 
     try {
         await fetch(MAKE_WEBHOOK_URL, {
