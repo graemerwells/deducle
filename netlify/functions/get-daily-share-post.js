@@ -1,6 +1,6 @@
 // In file: /netlify/functions/get-daily-share-post.js
 
-const { getTodaysPuzzle } = require('./puzzles.js');
+const { getTodaysPuzzle } = require('./get-daily-puzzle.js');
 
 function generatePattern(guess, target) {
     if (!guess || !target) return 'BBBBB';
