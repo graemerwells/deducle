@@ -8,6 +8,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="0f279ede-45ae-4c57-818d-9ddf0f0358da" type="text/javascript" async></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BCWJB3PMG7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BCWJB3PMG7');
+</script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -213,6 +223,11 @@
         <br><br>
         Designed by Graeme Wells <br>
         <a href="mailto:5thguess@proton.me">5thguess@proton.me</a>
+        <br><br>
+        <a href="https://bsky.app/profile/5thguess.bsky.social" target="_blank">Bluesky</a>
+        <br>
+        <a href="https://x.com/5thGuess" target="_blank">Twitter</a> 
+            
     </footer>
 
     <script>
@@ -761,7 +776,19 @@
         }
 
         // --- Event Listeners ---
-        startBtn.addEventListener('click', startGame);
+       startBtn.addEventListener('click', () => {
+  // Check if the gtag function exists before calling it
+  if (typeof gtag === 'function') {
+    // This line sends a custom 'start_game' event to Google Analytics
+    gtag('event', 'start_game', {
+      'event_category': 'gameplay',
+      'event_label': 'Daily Puzzle Started'
+    });
+  }
+
+  // Call the original function to start the game
+  startGame();
+});
         seeStatsBtn.addEventListener('click', () => {
             winModalEl.classList.add('hidden');
             if(isArchiveMode) {
