@@ -1,6 +1,6 @@
 // In file: /netlify/functions/get-daily-share-post.js
 
-const { getTodaysPuzzle } = require('./get-daily-puzzle.js');
+const { getTodaysPuzzle } = require('./puzzles.js');
 
 function generatePattern(guess, target) {
     if (!guess || !target) return 'BBBBB';
@@ -28,8 +28,8 @@ function generatePattern(guess, target) {
 }
 
 exports.handler = async function(event) {
-    const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL; // Use a generic name like MAKE_WEBHOOK_URL
-    if (!MAKE_WEBHOOK_URL) {
+    const AUTOMATION_WEBHOOK_URL = process.env.AUTOMATION_WEBHOOK_URL; // Use a generic name like AUTOMATION_WEBHOOK_URL
+    if (!AUTOMATION_WEBHOOK_URL) {
         return { statusCode: 500, body: "Webhook URL not set." };
     }
 
@@ -40,13 +40,11 @@ exports.handler = async function(event) {
     const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
     
     // --- Rich Text Generation for Bluesky ---
-    const websiteUrl = "https://5thguess.netlify.app"; // Replace with your actual domain
-    const hashtag1 = "#5thGuess";
-    const hashtag2 = "#Puzzle;
-    const hashtag3 = "#Wordle";
-    const hashtag4 = "#WordleSky";
+    const websiteUrl = "https://your-domain.com"; // Replace with your actual domain
+    const hashtag1 = "#WordPuzzle";
+    const hashtag2 = "#LaQuintaProva";
 
-    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nPlay here: ${websiteUrl} ${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
+    const postText = `La Quinta Prova - ${formattedDate}\n\n${emojiPattern}\n\nPlay here: ${websiteUrl} ${hashtag1} ${hashtag2}`;
 
     const textEncoder = new TextEncoder();
     const linkStart = textEncoder.encode(postText.substring(0, postText.indexOf(websiteUrl))).length;
@@ -76,7 +74,7 @@ exports.handler = async function(event) {
     };
 
     try {
-        await fetch(MAKE_WEBHOOK_URL, {
+        await fetch(AUTOMATION_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(richTextPayload),
