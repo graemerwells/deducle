@@ -28,8 +28,8 @@ function generatePattern(guess, target) {
 }
 
 exports.handler = async function(event) {
-    const AUTOMATION_WEBHOOK_URL = process.env.AUTOMATION_WEBHOOK_URL; // Use a generic name like AUTOMATION_WEBHOOK_URL
-    if (!AUTOMATION_WEBHOOK_URL) {
+    const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL; // Use a generic name like MAKE_WEBHOOK_URL
+    if (!MAKE_WEBHOOK_URL) {
         return { statusCode: 500, body: "Webhook URL not set." };
     }
 
@@ -74,7 +74,7 @@ exports.handler = async function(event) {
     };
 
     try {
-        await fetch(AUTOMATION_WEBHOOK_URL, {
+        await fetch(MAKE_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(richTextPayload),
