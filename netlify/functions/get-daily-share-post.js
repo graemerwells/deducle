@@ -1,7 +1,6 @@
 // In file: /netlify/functions/get-daily-share-post.js
 
-// This function now contains its own logic to get the daily puzzle.
-const { PUZZLES_JSON } = require('./puzzles.js');
+const { getTodaysPuzzle } = require('./get-daily-puzzle.js');
 
 function generatePattern(guess, target) {
     if (!guess || !target) return 'BBBBB';
@@ -29,52 +28,62 @@ function generatePattern(guess, target) {
 }
 
 exports.handler = async function(event) {
-    
-    const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
-    if (!MAKE_WEBHOOK_URL) {
-        console.error("Make Webhook URL not configured in environment variables.");
-        return { 
-            statusCode: 500, 
-            body: "Server configuration error: Make Webhook URL not set." 
-        };
+    const AUTOMATION_WEBHOOK_URL = process.env.AUTOMATION_WEBHOOK_URL; // Use a generic name like AUTOMATION_WEBHOOK_URL
+    if (!AUTOMATION_WEBHOOK_URL) {
+        return { statusCode: 500, body: "Webhook URL not set." };
     }
 
-    // --- Puzzle logic is now directly inside this function ---
-    const epochDate = new Date('2024-01-01');
-    const now = new Date();
-    const msSinceEpoch = now - epochDate;
-    const daysSinceEpoch = Math.floor(msSinceEpoch / (1000 * 60 * 60 * 24));
-    const puzzleIndex = daysSinceEpoch % PUZZLES_JSON.length;
-    const todaysPuzzle = PUZZLES_JSON[puzzleIndex];
-    
+    const todaysPuzzle = getTodaysPuzzle();
     const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
-    
     const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const year = today.getFullYear();
-    const formattedDate = `${day}/${month}/${year}`;
+    const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+    
+    // --- Rich Text Generation for Bluesky ---
+    const websiteUrl = "https://5thguess.netlify.app"; // Replace with your actual domain
+    const hashtag1 = "#5thGuess";
+    const hashtag2 = "#Puzzle;
+    const hashtag3 = "#Wordle";
+    const hashtag4 = "#WordleSky";
 
-    // Replace "your-domain.com" with your actual website domain.
-    const postText = `5th Guess! - ${formattedDate}\n\nHere is today's pattern to solve!\n\n${emojiPattern}\n\nPlay here: https://5thguess.netlify.app \n#5thGuess #WordGames #Puzzle #Wordle #WordleSky`;
+    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nPlay here: ${websiteUrl} ${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
+
+    const textEncoder = new TextEncoder();
+    const linkStart = textEncoder.encode(postText.substring(0, postText.indexOf(websiteUrl))).length;
+    const linkEnd = linkStart + textEncoder.encode(websiteUrl).length;
+    const tag1Start = textEncoder.encode(postText.substring(0, postText.indexOf(hashtag1))).length;
+    const tag1End = tag1Start + textEncoder.encode(hashtag1).length;
+    const tag2Start = textEncoder.encode(postText.substring(0, postText.indexOf(hashtag2))).length;
+    const tag2End = tag2Start + textEncoder.encode(hashtag2).length;
+
+    // Create the rich text object for Make
+    const richTextPayload = {
+        text: postText,
+        facets: [
+            {
+                index: { byteStart: linkStart, byteEnd: linkEnd },
+                features: [{ $type: 'app.bsky.richtext.facet#link', uri: websiteUrl }]
+            },
+            {
+                index: { byteStart: tag1Start, byteEnd: tag1End },
+                features: [{ $type: 'app.bsky.richtext.facet#tag', tag: hashtag1.substring(1) }]
+            },
+            {
+                index: { byteStart: tag2Start, byteEnd: tag2End },
+                features: [{ $type: 'app.bsky.richtext.facet#tag', tag: hashtag2.substring(1) }]
+            }
+        ]
+    };
 
     try {
-        await fetch(MAKE_WEBHOOK_URL, {
+        await fetch(AUTOMATION_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ post: postText }),
+            body: JSON.stringify(richTextPayload),
         });
         
-        return {
-            statusCode: 200,
-            body: "Successfully sent data to Make.com.",
-        };
+        return { statusCode: 200, body: "Successfully sent rich text data." };
     } catch (error) {
-        console.error("Error sending data to Make.com:", error);
-        return {
-            statusCode: 500,
-            body: "Failed to send data to Make.com.",
-        };
+        return { statusCode: 500, body: "Failed to send data." };
     }
 };
