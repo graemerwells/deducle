@@ -776,7 +776,19 @@
         }
 
         // --- Event Listeners ---
-        startBtn.addEventListener('click', startGame);
+       startBtn.addEventListener('click', () => {
+  // Check if the gtag function exists before calling it
+  if (typeof gtag === 'function') {
+    // This line sends a custom 'start_game' event to Google Analytics
+    gtag('event', 'start_game', {
+      'event_category': 'gameplay',
+      'event_label': 'Daily Puzzle Started'
+    });
+  }
+
+  // Call the original function to start the game
+  startGame();
+});
         seeStatsBtn.addEventListener('click', () => {
             winModalEl.classList.add('hidden');
             if(isArchiveMode) {
