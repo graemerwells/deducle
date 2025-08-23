@@ -660,8 +660,9 @@
             document.getElementById('games-attempted').textContent = stats.gamesAttempted;
             document.getElementById('games-completed').textContent = stats.gamesCompleted;
             
-            const avgStarsNum = stats.gamesCompleted > 0 ? (stats.totalStars / stats.gamesCompleted) : 0;
-            document.getElementById('avg-stars').innerHTML = `${avgStarsNum.toFixed(1)} <span class="text-yellow-400">★</span>`;
+            const avgStarsNum = stats.gamesAttempted > 0 ? (stats.totalStars / stats.gamesAttempted) : 0;
+            
+document.getElementById('avg-stars').innerHTML = `${avgStarsNum.toFixed(1)} <span class="text-yellow-400">★</span>`;
             
             const avgTimeSec = stats.gamesCompleted > 0 ? Math.round(stats.totalTime / stats.gamesCompleted) : 0;
             const avgMinutes = String(Math.floor(avgTimeSec / 60)).padStart(2, '0');
