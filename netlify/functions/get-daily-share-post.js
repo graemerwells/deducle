@@ -33,14 +33,7 @@ exports.handler = async function(event) {
         return { statusCode: 500, body: "Webhook URL not set." };
     }
 
-    // --- Puzzle logic is directly inside this function ---
-    const epochDate = new Date('2024-01-01');
-    const now = new Date();
-    const msSinceEpoch = now - epochDate;
-    const daysSinceEpoch = Math.floor(msSinceEpoch / (1000 * 60 * 60 * 24));
-    const puzzleIndex = daysSinceEpoch % PUZZLES_JSON.length;
-    const todaysPuzzle = PUZZLES_JSON[puzzleIndex];
-    
+    const todaysPuzzle = PUZZLES_JSON[0]; // Using a fixed puzzle for consistency
     const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
     const today = new Date();
@@ -50,8 +43,8 @@ exports.handler = async function(event) {
     const websiteUrl = "https://5thguess.netlify.app"; // Replace with your actual domain
     const hashtag1 = "#5thGuess";
     const hashtag2 = "#Puzzle";
-    const hashtag3 = "#WordGame";
-    const hashtag4 = "#Wordle";
+    const hashtag3 = "#Wordle";
+    const hashtag4 = "#WordleSky";
 
     const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nPlay here: ${websiteUrl} ${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
 
@@ -62,6 +55,12 @@ exports.handler = async function(event) {
     const tag1End = tag1Start + textEncoder.encode(hashtag1).length;
     const tag2Start = textEncoder.encode(postText.substring(0, postText.indexOf(hashtag2))).length;
     const tag2End = tag2Start + textEncoder.encode(hashtag2).length;
+    
+    // --- NEW: Added logic for hashtags 3 and 4 ---
+    const tag3Start = textEncoder.encode(postText.substring(0, postText.indexOf(hashtag3))).length;
+    const tag3End = tag3Start + textEncoder.encode(hashtag3).length;
+    const tag4Start = textEncoder.encode(postText.substring(0, postText.indexOf(hashtag4))).length;
+    const tag4End = tag4Start + textEncoder.encode(hashtag4).length;
 
     // Create the rich text object for your automation service
     const richTextPayload = {
@@ -78,6 +77,15 @@ exports.handler = async function(event) {
             {
                 index: { byteStart: tag2Start, byteEnd: tag2End },
                 features: [{ $type: 'app.bsky.richtext.facet#tag', tag: hashtag2.substring(1) }]
+            },
+            // --- NEW: Added facet objects for hashtags 3 and 4 ---
+            {
+                index: { byteStart: tag3Start, byteEnd: tag3End },
+                features: [{ $type: 'app.bsky.richtext.facet#tag', tag: hashtag3.substring(1) }]
+            },
+            {
+                index: { byteStart: tag4Start, byteEnd: tag4End },
+                features: [{ $type: 'app.bsky.richtext.facet#tag', tag: hashtag4.substring(1) }]
             }
         ]
     };
