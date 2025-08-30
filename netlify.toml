@@ -1,3 +1,5 @@
 [functions]
   directory = "netlify/functions"
+   # This schedule runs at 9:00 AM UTC every day.
+   	 schedule = "0 14 * * *"
   
