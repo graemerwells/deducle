@@ -42,6 +42,10 @@ exports.handler = async function(event) {
     const todaysPuzzle = PUZZLES_JSON[puzzleIndex];
     // --- END OF CORRECTION ---
 
+    // --- NEW: Log the data for debugging ---
+    console.log(`Function run at: ${now.toISOString()}`);
+    console.log(`Calculated puzzle index: ${puzzleIndex}`);
+
     const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
     const today = new Date();
