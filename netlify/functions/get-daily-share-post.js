@@ -47,6 +47,7 @@ exports.handler = async function(event) {
     console.log(`Calculated puzzle index: ${puzzleIndex}`);
 
     const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
+    const final = todaysPuzzle.finalWord;
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
     const today = new Date();
     const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
@@ -57,7 +58,7 @@ exports.handler = async function(event) {
     const hashtag3 = "#Wordle";
     const hashtag4 = "#WordleSky";
 
-    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nPlay here: ${websiteUrl} \n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
+    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nFinal word: ${emojiPattern}\n\nPlay today's puzzle here: ${websiteUrl} \n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
 
     const textEncoder = new TextEncoder();
     const linkStart = textEncoder.encode(postText.substring(0, postText.indexOf(websiteUrl))).length;
