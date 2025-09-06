@@ -32,6 +32,7 @@ exports.handler = async function(event) {
     if (!MAKE_WEBHOOK_URL) {
         return { statusCode: 500, body: "Webhook URL not set." };
     }
+
     // --- Timezone-Corrected Puzzle and Date Logic ---
     const now = new Date();
     // Your timezone (CEST) is UTC+2. We adjust the date to ensure it reflects the correct calendar day in Geneva.
@@ -43,14 +44,14 @@ exports.handler = async function(event) {
     const puzzleIndex = daysSinceEpoch % PUZZLES_JSON.length;
     const todaysPuzzle = PUZZLES_JSON[puzzleIndex];
     
+    // This is now the ONLY declaration of formattedDate
     const formattedDate = `${String(localTime.getUTCDate()).padStart(2, '0')}/${String(localTime.getUTCMonth() + 1).padStart(2, '0')}/${localTime.getUTCFullYear()}`;
     // --- End of Fix ---
+    
+
     const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
-    
-    // Simple date formatting for your timezone
-    const today = new Date();
-    const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+
         // --- Rich Text Generation for Bluesky ---
     const websiteUrl = "https://5thguess.netlify.app";
     const hashtag1 = "#5thGuess";
