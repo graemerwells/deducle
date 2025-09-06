@@ -32,14 +32,19 @@ exports.handler = async function(event) {
     if (!MAKE_WEBHOOK_URL) {
         return { statusCode: 500, body: "Webhook URL not set." };
     }
-
+    // --- Timezone-Corrected Puzzle and Date Logic ---
     const now = new Date();
+    // Your timezone (CEST) is UTC+2. We adjust the date to ensure it reflects the correct calendar day in Geneva.
+    const localTime = new Date(now.getTime() + (2 * 60 * 60 * 1000));
+    
     const epochDate = new Date('2024-01-01');
-    const msSinceEpoch = now - epochDate;
+    const msSinceEpoch = localTime - epochDate;
     const daysSinceEpoch = Math.floor(msSinceEpoch / (1000 * 60 * 60 * 24));
     const puzzleIndex = daysSinceEpoch % PUZZLES_JSON.length;
     const todaysPuzzle = PUZZLES_JSON[puzzleIndex];
     
+    const formattedDate = `${String(localTime.getUTCDate()).padStart(2, '0')}/${String(localTime.getUTCMonth() + 1).padStart(2, '0')}/${localTime.getUTCFullYear()}`;
+    // --- End of Fix ---
     const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
     
