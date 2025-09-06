@@ -1,7 +1,8 @@
 // In file: puzzle-logic.js
 
 const { PUZZLES_JSON } = require('./puzzles.js');
-const { zonedTimeToUtc, format } = require('date-fns-tz');
+// --- THIS LINE WAS ADDED ---
+const { zonedTimeToUtc } = require('date-fns-tz');
 const { differenceInCalendarDays } = require('date-fns');
 
 function getTodaysPuzzle() {
@@ -21,4 +22,5 @@ function getTodaysPuzzle() {
   return PUZZLES_JSON[puzzleIndex];
 }
 
+// This line makes the function available to other files.
 module.exports = { getTodaysPuzzle };
