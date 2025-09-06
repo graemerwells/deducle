@@ -1,6 +1,6 @@
 // In file: /netlify/functions/get-daily-share-post.js
-const { getTodaysPuzzle } = require('./puzzle-logic.js');
-const { formatInTimeZone } = require('date-fns-tz');
+
+const { PUZZLES_JSON } = require('./puzzles.js');
 
 function generatePattern(guess, target) {
     if (!guess || !target) return 'BBBBB';
@@ -27,22 +27,25 @@ function generatePattern(guess, target) {
     return pattern.join('');
 }
 
-
 exports.handler = async function(event) {
     const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
     if (!MAKE_WEBHOOK_URL) {
         return { statusCode: 500, body: "Webhook URL not set." };
     }
 
-     const todaysPuzzle = getTodaysPuzzle(); // Uses the new, timezone-aware logic
+    const now = new Date();
+    const epochDate = new Date('2024-01-01');
+    const msSinceEpoch = now - epochDate;
+    const daysSinceEpoch = Math.floor(msSinceEpoch / (1000 * 60 * 60 * 24));
+    const puzzleIndex = daysSinceEpoch % PUZZLES_JSON.length;
+    const todaysPuzzle = PUZZLES_JSON[puzzleIndex];
     
     const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
     
-    // Uses the timezone-aware library to format the date correctly
-    const timeZone = 'Europe/Zurich';
-    const formattedDate = formatInTimeZone(new Date(), timeZone, 'dd/MM/yyyy');
-    
+    // Simple date formatting for your timezone
+    const today = new Date();
+    const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
         // --- Rich Text Generation for Bluesky ---
     const websiteUrl = "https://5thguess.netlify.app";
     const hashtag1 = "#5thGuess";
