@@ -1,6 +1,6 @@
 // In file: /netlify/functions/get-daily-share-post.js
-
-const { PUZZLES_JSON } = require('./puzzles.js');
+const { getTodaysPuzzle } = require('./puzzle-logic.js');
+const { formatInTimeZone } = require('date-fns-tz');
 
 function generatePattern(guess, target) {
     if (!guess || !target) return 'BBBBB';
@@ -27,38 +27,30 @@ function generatePattern(guess, target) {
     return pattern.join('');
 }
 
+
 exports.handler = async function(event) {
     const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
     if (!MAKE_WEBHOOK_URL) {
         return { statusCode: 500, body: "Webhook URL not set." };
     }
 
-    // --- THIS SECTION IS NOW CORRECTED ---
-    const epochDate = new Date('2024-01-01');
-    const now = new Date();
-    const msSinceEpoch = now - epochDate;
-    const daysSinceEpoch = Math.floor(msSinceEpoch / (1000 * 60 * 60 * 24));
-    const puzzleIndex = daysSinceEpoch % PUZZLES_JSON.length;
-    const todaysPuzzle = PUZZLES_JSON[puzzleIndex];
-    // --- END OF CORRECTION ---
-
-    // --- NEW: Log the data for debugging ---
-    console.log(`Function run at: ${now.toISOString()}`);
-    console.log(`Calculated puzzle index: ${puzzleIndex}`);
-
-    const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
-    const final = todaysPuzzle.finalWord;
-    const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
-    const today = new Date();
-    const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+     const todaysPuzzle = getTodaysPuzzle(); // Uses the new, timezone-aware logic
     
+    const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
+    const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
+    
+    // Uses the timezone-aware library to format the date correctly
+    const timeZone = 'Europe/Zurich';
+    const formattedDate = formatInTimeZone(new Date(), timeZone, 'dd/MM/yyyy');
+    
+        // --- Rich Text Generation for Bluesky ---
     const websiteUrl = "https://5thguess.netlify.app";
     const hashtag1 = "#5thGuess";
     const hashtag2 = "#Puzzle";
     const hashtag3 = "#Wordle";
     const hashtag4 = "#WordleSky";
 
-    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nFinal word: ${final}\n\nPlay today's puzzle here: ${websiteUrl}\n\n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
+    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nPlay here: ${websiteUrl} \n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
 
     const textEncoder = new TextEncoder();
     const linkStart = textEncoder.encode(postText.substring(0, postText.indexOf(websiteUrl))).length;
