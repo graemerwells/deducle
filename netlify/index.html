@@ -722,7 +722,7 @@
     const pattern = currentPuzzle.pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
     
     // Updated shareText to use the date
-    const shareText = `5th Guess ${formattedDate} - ${stars}\nTime: ${time}\n${pattern}`;
+    const shareText = `5th Guess ${formattedDate} - ${stars}\n\nTime: ${time}\n\n${pattern}\n\nFinal Word: ${currentPuzzle.finalWord}`;
     
     const textArea = document.createElement("textarea");
     textArea.value = shareText;
