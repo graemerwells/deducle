@@ -59,7 +59,7 @@ exports.handler = async function(event) {
     const hashtag3 = "#Wordle";
     const hashtag4 = "#WordleSky";
 
-    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nPlay here: ${websiteUrl}\n\nFinal Word: ${currentPuzzle.finalWord}\n\n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
+    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nPlay here: ${websiteUrl}\n\nFinal Word: ${todaysPuzzle.finalWord}\n\n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
 
     const textEncoder = new TextEncoder();
     const linkStart = textEncoder.encode(postText.substring(0, postText.indexOf(websiteUrl))).length;
