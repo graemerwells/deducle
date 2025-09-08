@@ -1,4 +1,8 @@
 [functions]
   directory = "netlify/functions"
+  [functions."get-daily-share-post"]
+   	 # This schedule runs at 9:00 AM UTC every day.
+   	 schedule = "0 6 * * *"
+
 
 
