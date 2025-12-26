@@ -75,39 +75,81 @@
 
     <!-- Start Screen -->
    
-<div id="start-screen" class="flex flex-col items-center justify-center flex-grow text-center">
+<div id="start-screen" class="flex flex-col items-center justify-center flex-grow text-center px-6 py-8">
+    <div class="max-w-xl mx-auto">
+        <h2 class="text-3xl font-extrabold text-gray-900 mb-6">The Reverse Deduction Game</h2>
 
-        <div class="max-w-md mx-auto mb-8">
+        <div class="bg-white border-2 border-gray-100 rounded-2xl p-6 mb-8 shadow-sm">
+            <p class="text-sm font-bold text-blue-600 uppercase tracking-widest mb-4">How it Works</p>
+            
+            <div class="flex flex-col items-center gap-6">
+                <div>
+                    <p class="text-xs text-gray-500 mb-2 font-semibold">YOUR CLUE (FIND THE WORD)</p>
+                    <div class="flex gap-2">
+                        <div class="w-12 h-12 flex items-center justify-center bg-gray-400 text-white font-bold rounded text-xl">?</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-yellow-500 text-white font-bold rounded text-xl">?</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-gray-400 text-white font-bold rounded text-xl">?</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-yellow-500 text-white font-bold rounded text-xl">?</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-green-500 text-white font-bold rounded text-xl">?</div>
+                    </div>
+                </div>
 
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">How to Play</h2>
+                <div>
+                    <p class="text-xs text-gray-500 mb-2 font-semibold">THE TARGET WORD</p>
+                    <div class="flex gap-2">
+                        <div class="w-12 h-12 flex items-center justify-center bg-green-600 text-white font-bold rounded text-xl">G</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-green-600 text-white font-bold rounded text-xl">R</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-green-600 text-white font-bold rounded text-xl">A</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-green-600 text-white font-bold rounded text-xl">P</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-green-600 text-white font-bold rounded text-xl">H</div>
+                    </div>
+                </div>
+            </div>
 
-            <p class="text-gray-600 mb-6">
-
-                Deduce the incorrect guess! Work out the unique five-letter word that fits the pattern as quickly as possible.
-
-            </p>
-
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Star Rating</h2>
-
-            <ul class="text-gray-600 space-y-1">
-
-                <li><span class="text-yellow-400 text-xl">★★★★★</span> Under 30 seconds</li>
-
-                <li><span class="text-yellow-400 text-xl">★★★★☆</span> Under 1 minute</li>
-
-                <li><span class="text-yellow-400 text-xl">★★★☆☆</span> Under 2 minutes</li>
-
-                <li><span class="text-yellow-400 text-xl">★★☆☆☆</span> Under 5 minutes</li>
-
-                <li><span class="text-yellow-400 text-xl">★☆☆☆☆</span> 5 minutes or more</li>
-
-            </ul>
-
+            <div class="mt-8 text-left text-gray-700 space-y-3 border-t pt-6">
+                <div class="flex items-start gap-3">
+                    <span class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">GREEN</span>
+                    <p class="text-sm">Letter matches <strong>GRAPH</strong> in that exact spot (e.g., ends in <strong>H</strong>).</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">YELLOW</span>
+                    <p class="text-sm">Letter is in <strong>GRAPH</strong>, but in a <strong>different</strong> spot.</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="bg-gray-400 text-white text-xs font-bold px-2 py-1 rounded">GRAY</span>
+                    <p class="text-sm">Letter is <strong>not</strong> found in the word <strong>GRAPH</strong> at all.</p>
+                </div>
+                <p class="text-center italic text-gray-500 text-sm mt-4">Example Solution: <strong>L A U G H</strong></p>
+            </div>
         </div>
 
-        <button id="start-btn" class="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 font-bold transition-colors text-2xl shadow-lg">Start Today's Puzzle</button>
+        <div class="mb-10">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Star Rating</h3>
+            <div class="flex flex-wrap justify-center gap-4 text-sm">
+                <div class="flex flex-col items-center">
+                    <span class="text-yellow-500 font-bold">★★★★★</span>
+                    <span class="text-gray-500">&lt; 30s</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-yellow-500 font-bold">★★★★☆</span>
+                    <span class="text-gray-500">&lt; 1m</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-yellow-500 font-bold">★★★☆☆</span>
+                    <span class="text-gray-500">&lt; 2m</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-yellow-500 font-bold">★★☆☆☆</span>
+                    <span class="text-gray-500">&lt; 5m</span>
+                </div>
+            </div>
+        </div>
 
+        <button id="start-btn" class="bg-blue-600 text-white px-10 py-4 rounded-full hover:bg-blue-700 font-bold transition-all hover:shadow-lg text-xl">
+            Start Puzzle
+        </button>
     </div>
+</div>
     <!-- Main Game Wrapper (Initially Hidden) -->
     <div id="main-game-wrapper" style="display: none;" class="w-full max-w-6xl mx-auto lg:grid lg:grid-cols-3 lg:gap-8 lg:items-start flex-grow">
         <!-- Game Column -->
