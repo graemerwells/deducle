@@ -74,23 +74,64 @@
     </header>
 
     <!-- Start Screen -->
-    <div id="start-screen" class="flex flex-col items-center justify-center flex-grow text-center">
-        <div class="max-w-md mx-auto mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">How to Play</h2>
-            <p class="text-gray-600 mb-6">
-                Deduce the incorrect guess! Work out the unique five-letter word that fits the pattern as quickly as possible.
-            </p>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Star Rating</h2>
-            <ul class="text-gray-600 space-y-1">
-                <li><span class="text-yellow-400 text-xl">★★★★★</span> Under 30 seconds</li>
-                <li><span class="text-yellow-400 text-xl">★★★★☆</span> Under 1 minute</li>
-                <li><span class="text-yellow-400 text-xl">★★★☆☆</span> Under 2 minutes</li>
-                <li><span class="text-yellow-400 text-xl">★★☆☆☆</span> Under 5 minutes</li>
-                <li><span class="text-yellow-400 text-xl">★☆☆☆☆</span> 5 minutes or more</li>
-            </ul>
+    <div id="start-screen" class="flex flex-col items-center justify-center flex-grow text-center px-4 py-8">
+    <div class="max-w-lg mx-auto">
+        <h2 class="text-3xl font-extrabold text-gray-900 mb-6">How to Play</h2>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
+            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Example Puzzle</p>
+            
+            <div class="flex flex-col gap-2 mb-4 items-center">
+                <div class="flex gap-1">
+                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-bold rounded">S</div>
+                    <div class="w-10 h-10 flex items-center justify-center bg-gray-400 text-white font-bold rounded">T</div>
+                    <div class="w-10 h-10 flex items-center justify-center bg-gray-400 text-white font-bold rounded">A</div>
+                    <div class="w-10 h-10 flex items-center justify-center bg-gray-400 text-white font-bold rounded">R</div>
+                    <div class="w-10 h-10 flex items-center justify-center bg-gray-400 text-white font-bold rounded">E</div>
+                </div>
+                <div class="flex gap-1">
+                    <div class="w-10 h-10 flex items-center justify-center bg-green-500 text-white font-bold rounded">S</div>
+                    <div class="w-10 h-10 flex items-center justify-center bg-yellow-500 text-white font-bold rounded">O</div>
+                    <div class="w-10 h-10 flex items-center justify-center bg-yellow-500 text-white font-bold rounded">L</div>
+                    <div class="w-10 h-10 flex items-center justify-center bg-gray-400 text-white font-bold rounded">I</div>
+                    <div class="w-10 h-10 flex items-center justify-center bg-gray-400 text-white font-bold rounded">D</div>
+                </div>
+            </div>
+
+            <div class="text-left text-gray-700 space-y-3 text-sm sm:text-base">
+                <p>1. Analyze the <strong>clues</strong>. In this example, the word starts with <strong>S</strong> and contains <strong>O</strong> and <strong>L</strong>.</p>
+                <p>2. One of the guesses provided is <strong>incorrect</strong>—it breaks the logic of the others.</p>
+                <p>3. Your goal: Find the <strong>unique 5-letter word</strong> that fits every clue perfectly (e.g., <strong>SOLOS</strong>).</p>
+            </div>
         </div>
-        <button id="start-btn" class="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 font-bold transition-colors text-2xl shadow-lg">Start Today's Puzzle</button>
+
+        <div class="mb-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-3">Target Times</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left max-w-sm mx-auto">
+                <div class="flex items-center space-x-2">
+                    <span class="text-yellow-500 font-bold">★★★★★</span>
+                    <span class="text-gray-600">&lt; 30s</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-yellow-500 font-bold">★★★★☆</span>
+                    <span class="text-gray-600">&lt; 1m</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-yellow-500 font-bold">★★★☆☆</span>
+                    <span class="text-gray-600">&lt; 2m</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-yellow-500 font-bold">★★☆☆☆</span>
+                    <span class="text-gray-600">&lt; 5m</span>
+                </div>
+            </div>
+        </div>
+
+        <button id="start-btn" class="w-full sm:w-auto bg-blue-600 text-white px-12 py-4 rounded-xl hover:bg-blue-700 font-bold transition-all transform hover:scale-105 text-2xl shadow-xl">
+            Start Today's Puzzle
+        </button>
     </div>
+</div>
 
     <!-- Main Game Wrapper (Initially Hidden) -->
     <div id="main-game-wrapper" style="display: none;" class="w-full max-w-6xl mx-auto lg:grid lg:grid-cols-3 lg:gap-8 lg:items-start flex-grow">
