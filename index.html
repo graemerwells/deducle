@@ -79,12 +79,16 @@
     <div class="max-w-xl mx-auto">
         <h2 class="text-3xl font-extrabold text-gray-900 mb-6">The Reverse Deduction Game</h2>
 
+        <button id="start-btn" class="bg-blue-600 text-white px-10 py-4 rounded-full hover:bg-blue-700 font-bold transition-all hover:shadow-lg text-xl">
+            Start Puzzle
+        </button>
+
         <div class="bg-white border-2 border-gray-100 rounded-2xl p-6 mb-8 shadow-sm">
-            <p class="text-sm font-bold text-blue-600 uppercase tracking-widest mb-4">How it Works</p>
+            <p class="text-sm font-bold text-grey-900 uppercase tracking-widest mb-4">How it Works</p>
             
             <div class="flex flex-col items-center gap-6">
                 <div>
-                    <p class="text-xs text-gray-500 mb-2 font-semibold">YOUR CLUE (FIND THE WORD)</p>
+                    <p class="text-xs text-gray-600 mb-2 font-semibold">YOUR CLUE (FIND THE WORD)</p>
                     <div class="flex gap-2">
                         <div class="w-12 h-12 flex items-center justify-center bg-gray-600 text-white font-bold rounded text-xl">?</div>
                         <div class="w-12 h-12 flex items-center justify-center bg-yellow-500 text-white font-bold rounded text-xl">?</div>
@@ -95,7 +99,7 @@
                 </div>
 
                 <div>
-                    <p class="text-xs text-gray-500 mb-2 font-semibold">THE TARGET WORD</p>
+                    <p class="text-xs text-gray-600 mb-2 font-semibold">THE TARGET WORD</p>
                     <div class="flex gap-2">
                         <div class="w-12 h-12 flex items-center justify-center bg-green-600 text-white font-bold rounded text-xl">S</div>
                         <div class="w-12 h-12 flex items-center justify-center bg-green-600 text-white font-bold rounded text-xl">T</div>
@@ -109,7 +113,7 @@
             <div class="mt-8 text-left text-gray-700 space-y-3 border-t pt-6">
                 <div class="flex items-start gap-3">
                     <span class="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">GREEN</span>
-                    <p class="text-sm">Letter matches <strong>STINK</strong> in that exact spot (e.g., ends in <strong>H</strong>).</p>
+                    <p class="text-sm">Letter matches <strong>STINK</strong> in that exact spot.</p>
                 </div>
                 <div class="flex items-start gap-3">
                     <span class="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">YELLOW</span>
@@ -119,7 +123,14 @@
                     <span class="bg-gray-600 text-white text-xs font-bold px-2 py-1 rounded">GRAY</span>
                     <p class="text-sm">Letter is <strong>not</strong> found in the word <strong>STINK</strong> at all.</p>
                 </div>
-                <p class="text-center italic text-gray-500 text-sm mt-4">Example Solution: <strong>G I A N T</strong></p>
+                <p class="text-center italic text-gray-500 text-sm mt-4">Example Solution: </p>
+                <div class="flex gap-2">
+                        <div class="w-12 h-12 flex items-center justify-center bg-gray-600 text-white font-bold rounded text-xl">G</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-yellow-500 text-white font-bold rounded text-xl">I</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-gray-600 text-white font-bold rounded text-xl">A</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-green-600 text-white font-bold rounded text-xl">N</div>
+                        <div class="w-12 h-12 flex items-center justify-center bg-yellow-500 text-white font-bold rounded text-xl">T</div>
+                    </div>
             </div>
         </div>
 
@@ -148,10 +159,6 @@
                 </div>
             </div>
         </div>
-
-        <button id="start-btn" class="bg-blue-600 text-white px-10 py-4 rounded-full hover:bg-blue-700 font-bold transition-all hover:shadow-lg text-xl">
-            Start Puzzle
-        </button>
     </div>
 </div>
     <!-- Main Game Wrapper (Initially Hidden) -->
