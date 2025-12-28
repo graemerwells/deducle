@@ -53,7 +53,7 @@ exports.handler = async function(event) {
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
 
         // --- Rich Text Generation for Bluesky ---
-    const websiteUrl = "https://5thguess.netlify.app";
+    const websiteUrl = "https://5thguess.com";
     const hashtag1 = "#5thGuess";
     const hashtag2 = "#Puzzle";
     const hashtag3 = "#Wordle";
