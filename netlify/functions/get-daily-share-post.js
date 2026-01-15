@@ -71,38 +71,36 @@ exports.handler = async function(event) {
     const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nToday's Final Word ${clueText}.\nCan you find the unique 5th Guess that fits the pattern?\n\nPlay here: ${websiteUrl}\n\n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
     // --------------------------------------------
     const textEncoder = new TextEncoder();
-    const linkStart = textEncoder.encode(postText.substring(0, postText.indexOf(websiteUrl))).length;
-    const linkEnd = linkStart + textEncoder.encode(websiteUrl).length;
-    const tag1Start = textEncoder.encode(postText.substring(0, postText.indexOf(hashtag1))).length;
-    const tag1End = tag1Start + textEncoder.encode(hashtag1).length;
-    const tag2Start = textEncoder.encode(postText.substring(0, postText.indexOf(hashtag2))).length;
-    const tag2End = tag2Start + textEncoder.encode(hashtag2).length;
-    const tag3Start = textEncoder.encode(postText.substring(0, postText.indexOf(hashtag3))).length;
-    const tag3End = tag3Start + textEncoder.encode(hashtag3).length;
-    const tag4Start = textEncoder.encode(postText.substring(0, postText.indexOf(hashtag4))).length;
-    const tag4End = tag4Start + textEncoder.encode(hashtag4).length;
+
+    // This helper automatically finds the start and end bytes for any text snippet
+    const getIndices = (sub) => {
+        const idx = postText.indexOf(sub);
+        const byteStart = textEncoder.encode(postText.substring(0, idx)).length;
+        const byteEnd = byteStart + textEncoder.encode(sub).length;
+        return { byteStart, byteEnd };
+    };
 
     const richTextPayload = {
         text: postText,
         facets: [
             {
-                index: { byteStart: linkStart, byteEnd: linkEnd },
+                index: getIndices(websiteUrl),
                 features: [{ $type: 'app.bsky.richtext.facet#link', uri: websiteUrl }]
             },
             {
-                index: { byteStart: tag1Start, byteEnd: tag1End },
+                index: getIndices(hashtag1),
                 features: [{ $type: 'app.bsky.richtext.facet#tag', tag: hashtag1.substring(1) }]
             },
             {
-                index: { byteStart: tag2Start, byteEnd: tag2End },
+                index: getIndices(hashtag2),
                 features: [{ $type: 'app.bsky.richtext.facet#tag', tag: hashtag2.substring(1) }]
             },
             {
-                index: { byteStart: tag3Start, byteEnd: tag3End },
+                index: getIndices(hashtag3),
                 features: [{ $type: 'app.bsky.richtext.facet#tag', tag: hashtag3.substring(1) }]
             },
             {
-                index: { byteStart: tag4Start, byteEnd: tag4End },
+                index: getIndices(hashtag4),
                 features: [{ $type: 'app.bsky.richtext.facet#tag', tag: hashtag4.substring(1) }]
             }
         ]
