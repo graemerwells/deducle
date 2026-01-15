@@ -47,10 +47,18 @@ exports.handler = async function(event) {
     // This is now the ONLY declaration of formattedDate
     const formattedDate = `${String(localTime.getUTCDate()).padStart(2, '0')}/${String(localTime.getUTCMonth() + 1).padStart(2, '0')}/${localTime.getUTCFullYear()}`;
     // --- End of Fix ---
-    
 
     const pattern = generatePattern(todaysPuzzle.guessWord, todaysPuzzle.finalWord);
     const emojiPattern = pattern.replace(/G/g, '🟩').replace(/Y/g, '🟨').replace(/B/g, '⬛');
+
+    // --- ADD THIS CLUE LOGIC ---
+    const target = todaysPuzzle.finalWord.toUpperCase();
+// puzzleIndex % 2 === 0 means it will switch between Start and End every day
+    const isStartClue = puzzleIndex % 2 === 0; 
+    const clueText = isStartClue 
+    ? `starts with "${target[0]}"` 
+    : `ends with "${target[4]}"`;
+// ---------------------------
 
         // --- Rich Text Generation for Bluesky ---
     const websiteUrl = "https://5thguess.com";
@@ -59,8 +67,9 @@ exports.handler = async function(event) {
     const hashtag3 = "#Wordle";
     const hashtag4 = "#WordleSky";
 
-    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nFinal Word: ${todaysPuzzle.finalWord}\nOnly ONE correct answer each day.\n\nPlay here: ${websiteUrl}\n\n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
-
+    // --- REPLACE YOUR OLD POSTTEXT WITH THIS ---
+    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nToday's Final Word ${clueText}.\nCan you find the unique 5th Guess that fits the pattern?\n\nPlay here: ${websiteUrl}\n\n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
+    // --------------------------------------------
     const textEncoder = new TextEncoder();
     const linkStart = textEncoder.encode(postText.substring(0, postText.indexOf(websiteUrl))).length;
     const linkEnd = linkStart + textEncoder.encode(websiteUrl).length;
