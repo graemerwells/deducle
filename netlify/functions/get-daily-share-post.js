@@ -68,7 +68,7 @@ exports.handler = async function(event) {
     const hashtag4 = "#WordleSky";
 
     // --- REPLACE YOUR OLD POSTTEXT WITH THIS ---
-    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nToday's Final Word ${clueText}.\nCan you find the unique 5th Guess that fits the pattern?\n\nPlay here: ${websiteUrl}\n\n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
+    const postText = `5th Guess - ${formattedDate}\n\n${emojiPattern}\n\nToday's Final Word ${clueText}.\n\nCan you find the unique 5th Guess that fits the pattern?\n\nPlay here: ${websiteUrl}\n\n${hashtag1} ${hashtag2} ${hashtag3} ${hashtag4}`;
     // --------------------------------------------
     const textEncoder = new TextEncoder();
 
